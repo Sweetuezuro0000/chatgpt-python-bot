@@ -1,54 +1,46 @@
-#Author: Arman Idrisi
-
 import telebot
-import openai
+import requests
 
-
-#Bot Api Token
+# Bot API Token
 API_TOKEN = '6648308530:AAEElJzJ1_cj8Qd5uX1YPA0S98trp54ejX4'
-#Openai Api Key
-openai.api_key="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"
-
+# Safone API URL
+SAFONE_API_URL = 'https://api.safone.me/v1/assistant'
 
 bot = telebot.TeleBot(API_TOKEN)
 
-#Generate The Response
+# Generate the Response
 def get_response(msg):
-	completion = openai.Completion.create(
-    engine="text-davinci-003",
-    prompt=msg,
-    max_tokens=1024,
-    n=1,
-    stop=None,
-    temperature=0.5,
-)
-	return completion.choices[0].text
+    data = {
+        'message': msg,
+        'api_key': 'https://api.safone.me/chatgpt'
+    }
+    response = requests.post(SAFONE_API_URL, data=data).json()
+    return response['response']
 
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['help', 'start'])
 def send_welcome(message):
-	 # bot.send_message(message.chat.id,message.text)
-	   bot.send_message(message.chat.id, """\
-Hi there, I am A Ai ChatBot.
+    bot.send_message(message.chat.id, """\
+Hi there, I am an AI ChatBot.
 
-I am here to Give Answers Of Your Question.
+I am here to answer your questions.
 
-I Am Created Using Chatgpt Api ! 
+I am powered by the Safone API!
 
-Use /ask  To Ask Questions\
+Use /ask to ask questions.\
 """)
 
-#Handle The '/ask'
+# Handle the '/ask' command
 @bot.message_handler(commands=['ask'])
 def first_process(message):
-	bot.send_message(message.chat.id,"Send Me your Question")
-	bot.register_next_step_handler(message,second_process)
+    bot.send_message(message.chat.id, "Send me your question")
+    bot.register_next_step_handler(message, second_process)
+
 def again_send(message):
-  bot.register_next_step_handler(message,second_process)
+    bot.register_next_step_handler(message, second_process)
+
 def second_process(message):
-  bot.send_message(message.chat.id,get_response(message.text))
-  again_send(message)
+    bot.send_message(message.chat.id, get_response(message.text))
+    again_send(message)
 
- 
 bot.infinity_polling()
-
