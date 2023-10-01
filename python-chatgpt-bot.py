@@ -10,10 +10,9 @@ bot = telebot.TeleBot(API_TOKEN)
 
 # Generate the Response
 def get_response(msg):
-    data = {
-        'message': msg,
+    data =  'message': msg,
         'api_key': 'https://api.safone.me/chatgpt'
-    }
+    
     response = requests.post(SAFONE_API_URL, data=data).json()
     return response['response']
 
